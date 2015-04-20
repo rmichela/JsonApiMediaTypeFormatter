@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
+using JsonApi;
 
 namespace Host
 {
@@ -9,6 +10,8 @@ namespace Host
     {
         public static void Register(HttpConfiguration config)
         {
+            config.Formatters.Add(new JsonApiMediaTypeFormatter());
+
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",

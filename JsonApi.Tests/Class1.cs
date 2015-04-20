@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JsonApi
+namespace JsonApi.Tests
 {
     public class Class1
     {
