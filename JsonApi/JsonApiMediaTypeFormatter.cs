@@ -21,17 +21,22 @@ namespace JsonApi
 
         public override bool CanWriteType(Type type)
         {
+            if (type == typeof (string))
+            {
+                return false;
+            }
             return base.CanWriteType(type);
         }
 
         public override void WriteToStream(Type type, object value, Stream writeStream, Encoding effectiveEncoding)
         {
+            var rootResource = new ResourceObject(value);
+
             JsonWriter writer = CreateJsonWriter(type, writeStream, effectiveEncoding);
-            writer.WriteComment("Hello JsonApi");
-            writer.WriteStartObject();
-            writer.WritePropertyName("type");
-            writer.WriteValue(type.Name);
-            writer.WriteEndObject();
+            writer.Formatting = Formatting.Indented; 
+
+            rootResource.WriteJson(writer);
+            
             writer.Flush();
         }
     }
