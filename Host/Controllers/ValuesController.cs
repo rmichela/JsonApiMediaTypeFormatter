@@ -34,7 +34,13 @@ namespace Host.Controllers
             return new Thing
                 {
                     ThingGuid = new Guid("7E73D99B-5328-4872-9538-912396515A7D"),
-                    Value = "Bananas"
+                    Value = "Bananas",
+                    Sub = new SubThing { V1 = 20, V2 = 40 },
+                    Rel1 = new Thing
+                        {
+                            ThingGuid = new Guid("B47666DB-EBED-4522-80D8-5F8140DDDF38"),
+                            Value = "Pairs"
+                        }
                 };
         }
 
@@ -60,5 +66,13 @@ namespace Host.Controllers
         [ResourceId]
         public Guid ThingGuid { get; set; }
         public string Value { get; set; }
+        public SubThing Sub { get; set; }
+        public Thing Rel1 { get; set; }
+    }
+
+    public class SubThing
+    {
+        public int V1 { get; set; }
+        public int V2 { get; set; }
     }
 }

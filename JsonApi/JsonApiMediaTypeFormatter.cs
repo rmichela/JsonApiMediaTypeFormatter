@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Text;
@@ -30,13 +33,22 @@ namespace JsonApi
 
         public override void WriteToStream(Type type, object value, Stream writeStream, Encoding effectiveEncoding)
         {
-            var rootResource = new ResourceObject(value);
+            IJsonWriter rootResource;
+            if (value is IEnumerable<object>)
+            {
+                rootResource = new ResourceDocument((value as IEnumerable<object>).Select(o => new ResourceObject(o)));
+            }
+            else
+            {
+                rootResource = new ResourceDocument(new ResourceObject(value));
+            }
 
             JsonWriter writer = CreateJsonWriter(type, writeStream, effectiveEncoding);
-            writer.Formatting = Formatting.Indented; 
+            JsonSerializer serializer = CreateJsonSerializer();
+            writer.Formatting = Formatting.Indented;
 
-            rootResource.WriteJson(writer);
-            
+            serializer.Serialize(writer, rootResource);
+
             writer.Flush();
         }
     }

@@ -7,7 +7,8 @@ using Newtonsoft.Json;
 
 namespace JsonApi
 {
-    internal class ResourceObject
+    [JsonConverter(typeof(JsonWriterJsonConverter))]
+    internal class ResourceObject : IJsonWriter
     {
         private readonly dynamic _innerExpando;
 
@@ -86,9 +87,8 @@ namespace JsonApi
             return inflector.Pluralize(typeName);
         }
 
-        public void WriteJson(JsonWriter writer)
+        public void WriteJson(JsonWriter writer, JsonSerializer serializer)
         {
-            var serializer = new JsonSerializer();
             serializer.Serialize(writer, _innerExpando);
         }
     }
