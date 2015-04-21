@@ -57,7 +57,9 @@
     <Compile Include="JsonApiMediaTypeFormatter.cs" />
     <Compile Include="LinkObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResourceIdAttribute.cs" />
     <Compile Include="ResourceObject.cs" />
+    <Compile Include="ResourceObjectAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
