@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Dynamic;
 using Newtonsoft.Json;
 
@@ -11,12 +12,20 @@ namespace JsonApi
 
         public ResourceDocument(ResourceObject data)
         {
-            _innerExpando.Included = data;
+            _innerExpando.Data = data;
         }
 
         public ResourceDocument(IEnumerable<ResourceObject> data)
         {
-            _innerExpando.Included = data;
+            if (data.Any())
+            {
+                string firstType = data.First().Type;
+                if (data.Any(d => d.Type != firstType))
+                {
+                    throw new JsonApiException("All top-level resources in a document must be of the same type");
+                }
+            }
+            _innerExpando.Data = data;
         }
 
         public void WriteJson(JsonWriter writer, JsonSerializer serializer)

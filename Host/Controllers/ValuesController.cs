@@ -60,7 +60,7 @@ namespace Host.Controllers
         }
     }
 
-    [ResourceObject]
+    [ResourceObject(Type = "Thingy")]
     public class Thing
     {
         [ResourceId]

@@ -21,6 +21,10 @@ namespace JsonApi
             _innerExpando.Type = GetResourceType(forObject);
         }
 
+        public string Type { get { return _innerExpando.Type; } }
+
+
+
         public static void ValidateResourceObjectAttribute(object forObject)
         {
             if (!forObject.GetType().IsDefined(typeof(ResourceObjectAttribute)))
@@ -82,9 +86,10 @@ namespace JsonApi
 
         public static string GetResourceType(object forObject)
         {
+            var resourceAttribute = forObject.GetType().GetCustomAttribute<ResourceObjectAttribute>(false);
             string typeName = forObject.GetType().Name;
             var inflector = PluralizationService.CreateService(CultureInfo.CurrentCulture);
-            return inflector.Pluralize(typeName);
+            return resourceAttribute.Type ?? inflector.Pluralize(typeName);
         }
 
         public void WriteJson(JsonWriter writer, JsonSerializer serializer)
