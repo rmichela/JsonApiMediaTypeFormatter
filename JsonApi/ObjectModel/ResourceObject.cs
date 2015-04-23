@@ -21,8 +21,8 @@ namespace JsonApi.ObjectModel
             _profile = profile;
 
             ValidateResourceObjectAttribute(forObject);
-            _innerExpando = DynamicExtensions.InitializeExpandoFromPublicObjectProperties(forObject);
-            ValidateResourceFieldNames(_innerExpando);
+            ValidateResourceFieldNames(forObject);
+            _innerExpando = DynamicExtensions.InitializeExpandoFromPublicObjectProperties(forObject);            
             _innerExpando.Id = GetResourceId(forObject);
             _innerExpando.Type = GetResourceType(forObject, profile.Inflector);
         }
@@ -38,20 +38,18 @@ namespace JsonApi.ObjectModel
             }
         }
 
-        public static void ValidateResourceFieldNames(IDictionary<string, object> expando)
+        public static void ValidateResourceFieldNames(object forObject)
         {
-            var expandoKeys = expando.Keys.Select(k => k.ToLowerInvariant()).ToList();
-            if (expandoKeys.Contains("type"))
+            foreach (var memberInfo in forObject.GetType().GetMembers(BindingFlags.Instance | BindingFlags.Public))
             {
-                throw new JsonApiSpecException("Resource object classes cannot have a 'type' property");
-            }
-            if (expandoKeys.Contains("links"))
-            {
-                throw new JsonApiSpecException("Resource object classes cannot have a 'links' property");
-            }
-            if (expandoKeys.Contains("meta"))
-            {
-                throw new JsonApiSpecException("Resource object classes cannot have a 'meta' property");
+                foreach (var disalowedPropertyName in new[] { "Type", "Links", "Meta" })
+                {
+                    if (memberInfo.Name.Equals(disalowedPropertyName, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        throw new JsonApiSpecException(string.Format("Resource object class {0} cannot have a '{1}' property or attribute", 
+                            memberInfo.ReflectedType.Name, disalowedPropertyName));
+                    }
+                }
             }
         }
 
@@ -100,16 +98,19 @@ namespace JsonApi.ObjectModel
         public void WriteJson(JsonWriter writer, JsonSerializer serializer)
         {
             IContractResolver existingResolver = serializer.ContractResolver;
-            serializer.ContractResolver = new FieldNameEnforcingContractResolver(existingResolver);
+            serializer.ContractResolver = new ComplexAttributeFieldNameEnforcingContractResolver(existingResolver);
             serializer.Serialize(writer, _innerExpando);
             serializer.ContractResolver = existingResolver;
         }
 
-        private class FieldNameEnforcingContractResolver : IContractResolver
+        /// <summary>
+        /// Verifies that the json attributes of complex attributes don't violate reserved key rules.
+        /// </summary>
+        public class ComplexAttributeFieldNameEnforcingContractResolver : IContractResolver
         {
             private readonly IContractResolver _innerContractResolver;
 
-            public FieldNameEnforcingContractResolver(IContractResolver innerContractResolver)
+            public ComplexAttributeFieldNameEnforcingContractResolver(IContractResolver innerContractResolver)
             {
                 _innerContractResolver = innerContractResolver;
             }

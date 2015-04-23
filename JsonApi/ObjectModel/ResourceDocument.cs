@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using JsonApi.Serialization;
@@ -16,22 +17,42 @@ namespace JsonApi.ObjectModel
             _innerExpando.Data = data;
         }
 
-        public ResourceDocument(IEnumerable<ResourceObject> data)
+        public ResourceDocument(List<ResourceObject> data)
         {
-            if (data.Any())
-            {
-                string firstType = data.First().Type;
-                if (data.Any(d => d.Type != firstType))
-                {
-                    throw new JsonApiSpecException("All top-level resources in a document must be of the same type");
-                }
-            }
+            ValidateResourceObjectCollectionSameType(data);
+            ValidateResourceObjectCollectionUniqueness(data);
+            
             _innerExpando.Data = data;
         }
 
         public ResourceDocument(IEnumerable<Error> errors)
         {
             _innerExpando.Errors = errors;
+        }
+
+        public static void ValidateResourceObjectCollectionSameType(IEnumerable<ResourceObject> resources)
+        {
+            if (resources.Any())
+            {
+                string firstType = resources.First().Type;
+                if (resources.Any(d => d.Type != firstType))
+                {
+                    throw new JsonApiSpecException("All top-level resources in a document must be of the same type");
+                }
+            }
+        }
+
+        public static void ValidateResourceObjectCollectionUniqueness(IEnumerable<ResourceObject> resources)
+        {
+            var seenKeys = new HashSet<Tuple<string, string>>();
+            foreach (var resourceObject in resources)
+            {
+                var key = new Tuple<string, string>(resourceObject.Type, resourceObject.Id);
+                if (seenKeys.Add(key))
+                {
+                    throw new JsonApiSpecException(string.Format("Resource object {0}:{1} included more than once", key.Item1, key.Item2));
+                }
+            }
         }
 
         public void WriteJson(JsonWriter writer, JsonSerializer serializer)

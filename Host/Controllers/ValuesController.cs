@@ -61,7 +61,8 @@ namespace Host.Controllers
         }
     }
 
-    [ResourceObject(Type = "Thingy")]
+//    [ResourceObject(Type = "Thingy")]
+    [ResourceObject]
     public class Thing
     {
         [ResourceId]
@@ -69,12 +70,13 @@ namespace Host.Controllers
         public string Value { get; set; }
         public SubThing Sub { get; set; }
         public Thing Rel1 { get; set; }
+//        public int Links = 666;
     }
 
     public class SubThing
     {
         public int V1 { get; set; }
         public int V2 { get; set; }
-        public int Links = 666;
+//        public int Links = 666;
     }
 }

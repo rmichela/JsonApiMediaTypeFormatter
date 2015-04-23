@@ -51,7 +51,8 @@ namespace JsonApi.Serialization
                 IJsonWriter resourceDocument;
                 if (value is IEnumerable<object>)
                 {
-                    resourceDocument = new ResourceDocument((value as IEnumerable<object>).Select(o => new ResourceObject(o, _profile)));
+                    var resourceObjectList = (value as IEnumerable<object>).Select(o => new ResourceObject(o, _profile)).ToList();
+                    resourceDocument = new ResourceDocument(resourceObjectList);
                 }
                 else
                 {
