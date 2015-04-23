@@ -1,19 +1,28 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Text;
+using JsonApi.ObjectModel;
+using JsonApi.Profile;
 using Newtonsoft.Json;
 
-namespace JsonApi
+namespace JsonApi.Serialization
 {
     public class JsonApiMediaTypeFormatter : JsonMediaTypeFormatter
     {
-        public JsonApiMediaTypeFormatter()
+        private readonly IJsonApiProfile _profile;
+
+        public JsonApiMediaTypeFormatter() : this(new RecommendedProfile())
         {
+            
+        }
+
+        public JsonApiMediaTypeFormatter(IJsonApiProfile profile)
+        {
+            _profile = profile;
             SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/vnd.api+json"));
 //            SerializerSettings.ContractResolver = new JsonApiContractResolver();
         }
@@ -42,11 +51,11 @@ namespace JsonApi
                 IJsonWriter resourceDocument;
                 if (value is IEnumerable<object>)
                 {
-                    resourceDocument = new ResourceDocument((value as IEnumerable<object>).Select(o => new ResourceObject(o)));
+                    resourceDocument = new ResourceDocument((value as IEnumerable<object>).Select(o => new ResourceObject(o, _profile)));
                 }
                 else
                 {
-                    resourceDocument = new ResourceDocument(new ResourceObject(value));
+                    resourceDocument = new ResourceDocument(new ResourceObject(value, _profile));
                 }
 
                 JsonWriter writer = CreateJsonWriter(type, nominalStream, effectiveEncoding);

@@ -1,28 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.Design.PluralizationServices;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using JsonApi.Profile;
+using JsonApi.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace JsonApi
+namespace JsonApi.ObjectModel
 {
     [JsonConverter(typeof(JsonWriterJsonConverter))]
     internal class ResourceObject : IJsonWriter
     {
         private readonly dynamic _innerExpando;
+        private readonly IJsonApiProfile _profile;
 
-        public ResourceObject(object forObject)
+        public ResourceObject(object forObject, IJsonApiProfile profile)
         {
+            _profile = profile;
+
             ValidateResourceObjectAttribute(forObject);
             _innerExpando = DynamicExtensions.InitializeExpandoFromPublicObjectProperties(forObject);
             ValidateResourceFieldNames(_innerExpando);
             _innerExpando.Id = GetResourceId(forObject);
-            _innerExpando.Type = GetResourceType(forObject);
+            _innerExpando.Type = GetResourceType(forObject, profile.Inflector);
         }
 
+        public string Id { get { return _innerExpando.Id; } }
         public string Type { get { return _innerExpando.Type; } }
 
         public static void ValidateResourceObjectAttribute(object forObject)
@@ -85,11 +90,10 @@ namespace JsonApi
             return idValue.ToString();
         }
 
-        public static string GetResourceType(object forObject)
+        public static string GetResourceType(object forObject, IInflector inflector)
         {
             var resourceAttribute = forObject.GetType().GetCustomAttribute<ResourceObjectAttribute>(false);
             string typeName = forObject.GetType().Name;
-            var inflector = PluralizationService.CreateService(CultureInfo.CurrentCulture);
             return resourceAttribute.Type ?? inflector.Pluralize(typeName);
         }
 

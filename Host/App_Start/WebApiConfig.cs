@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using JsonApi;
+using JsonApi.Serialization;
 
 namespace Host
 {

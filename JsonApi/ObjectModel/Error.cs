@@ -1,4 +1,4 @@
-﻿namespace JsonApi
+﻿namespace JsonApi.ObjectModel
 {
     public class Error
     {

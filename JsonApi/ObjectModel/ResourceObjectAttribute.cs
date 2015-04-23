@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace JsonApi
+namespace JsonApi.ObjectModel
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public class ResourceObjectAttribute : Attribute

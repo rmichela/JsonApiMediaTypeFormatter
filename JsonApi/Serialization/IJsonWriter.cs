@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace JsonApi
+namespace JsonApi.Serialization
 {
     internal interface IJsonWriter
     {

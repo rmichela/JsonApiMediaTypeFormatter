@@ -53,18 +53,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DynamicExtensions.cs" />
-    <Compile Include="Error.cs" />
-    <Compile Include="IJsonWriter.cs" />
-    <Compile Include="JsonApiContractResolver.cs" />
     <Compile Include="JsonApiSpecException.cs" />
-    <Compile Include="JsonApiMediaTypeFormatter.cs" />
-    <Compile Include="JsonWriterJsonConverter.cs" />
-    <Compile Include="LinkObject.cs" />
+    <Compile Include="ObjectModel\Error.cs" />
+    <Compile Include="ObjectModel\LinkObject.cs" />
+    <Compile Include="ObjectModel\ResourceDocument.cs" />
+    <Compile Include="ObjectModel\ResourceIdAttribute.cs" />
+    <Compile Include="ObjectModel\ResourceObject.cs" />
+    <Compile Include="ObjectModel\ResourceObjectAttribute.cs" />
+    <Compile Include="Profile\IInflector.cs" />
+    <Compile Include="Profile\IJsonApiProfile.cs" />
+    <Compile Include="Profile\RecommendedProfile.cs" />
+    <Compile Include="Profile\SystemDataInflector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResourceDocument.cs" />
-    <Compile Include="ResourceIdAttribute.cs" />
-    <Compile Include="ResourceObject.cs" />
-    <Compile Include="ResourceObjectAttribute.cs" />
+    <Compile Include="Serialization\IJsonWriter.cs" />
+    <Compile Include="Serialization\JsonApiContractResolver.cs" />
+    <Compile Include="Serialization\JsonApiMediaTypeFormatter.cs" />
+    <Compile Include="Serialization\JsonWriterJsonConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using JsonApi;
+using JsonApi.ObjectModel;
 
 namespace Host.Controllers
 {

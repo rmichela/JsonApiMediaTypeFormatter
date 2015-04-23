@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Dynamic;
+using System.Linq;
+using JsonApi.Serialization;
 using Newtonsoft.Json;
 
-namespace JsonApi
+namespace JsonApi.ObjectModel
 {
     [JsonConverter(typeof(JsonWriterJsonConverter))]
     internal class ResourceDocument : IJsonWriter
