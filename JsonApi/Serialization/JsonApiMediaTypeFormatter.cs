@@ -45,34 +45,45 @@ namespace JsonApi.Serialization
         {
             try
             {
-                // Buffer the output in case there is an error
-                var nominalStream = new MemoryStream();
-
-                IJsonWriter resourceDocument;
-                if (value is IEnumerable<object>)
-                {
-                    var resourceObjectList = (value as IEnumerable<object>).Select(o => new ResourceObject(o, _profile)).ToList();
-                    resourceDocument = new ResourceDocument(resourceObjectList);
-                }
-                else
-                {
-                    resourceDocument = new ResourceDocument(new ResourceObject(value, _profile));
-                }
-
-                JsonWriter writer = CreateJsonWriter(type, nominalStream, effectiveEncoding);
-                JsonSerializer serializer = CreateJsonSerializer();
-                writer.Formatting = Formatting.Indented;
-
-                serializer.Serialize(writer, resourceDocument);
-                writer.Flush();
-                nominalStream.Position = 0;
-                nominalStream.CopyTo(writeStream);
-                writeStream.Flush();
+                WriteDocument(type, value, writeStream, effectiveEncoding);
             }
             catch (JsonApiSpecException ex)
             {
-                var errorStream = new MemoryStream();
-                IJsonWriter errorDocument = new ResourceDocument(new []
+                WriteSpecError(type, value, writeStream, effectiveEncoding, ex.Message);
+            }
+        }
+
+        private void WriteDocument(Type type, object value, Stream writeStream, Encoding effectiveEncoding)
+        {
+            // Buffer the output in case there is an error
+            var nominalStream = new MemoryStream();
+
+            IJsonWriter resourceDocument;
+            if (value is IEnumerable<object>)
+            {
+                var resourceObjectList = (value as IEnumerable<object>).Select(o => new ResourceObject(o, _profile)).ToList();
+                resourceDocument = new ResourceDocument(resourceObjectList);
+            }
+            else
+            {
+                resourceDocument = new ResourceDocument(new ResourceObject(value, _profile));
+            }
+
+            JsonWriter writer = CreateJsonWriter(type, nominalStream, effectiveEncoding);
+            JsonSerializer serializer = CreateJsonSerializer();
+            writer.Formatting = Formatting.Indented;
+
+            serializer.Serialize(writer, resourceDocument);
+            writer.Flush();
+            nominalStream.Position = 0;
+            nominalStream.CopyTo(writeStream);
+            writeStream.Flush();
+        }
+
+        private void WriteSpecError(Type type, object value, Stream writeStream, Encoding effectiveEncoding, string detail)
+        {
+            var errorStream = new MemoryStream();
+            IJsonWriter errorDocument = new ResourceDocument(new[]
                 {
                     new Error
                     {
@@ -80,19 +91,18 @@ namespace JsonApi.Serialization
                         Title = "JsonApi Specification Violation",
                         Href = "http://jsonapi.org/format",
                         Status = "500",
-                        Detail = ex.Message
+                        Detail = detail
                     }, 
                 });
-                JsonWriter writer = CreateJsonWriter(type, errorStream, effectiveEncoding);
-                JsonSerializer serializer = CreateJsonSerializer();
-                writer.Formatting = Formatting.Indented;
+            JsonWriter writer = CreateJsonWriter(type, errorStream, effectiveEncoding);
+            JsonSerializer serializer = CreateJsonSerializer();
+            writer.Formatting = Formatting.Indented;
 
-                serializer.Serialize(writer, errorDocument);
-                writer.Flush();
-                errorStream.Position = 0;
-                errorStream.CopyTo(writeStream);
-                writeStream.Flush();
-            }
+            serializer.Serialize(writer, errorDocument);
+            writer.Flush();
+            errorStream.Position = 0;
+            errorStream.CopyTo(writeStream);
+            writeStream.Flush();
         }
     }
 }

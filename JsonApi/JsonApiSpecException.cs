@@ -12,6 +12,10 @@ namespace JsonApi
         {
         }
 
+        public JsonApiSpecException(string format, params object[] args) : this(string.Format(format, args))
+        {           
+        }
+
         public JsonApiSpecException(string message, Exception innerException) : base(message, innerException)
         {
         }

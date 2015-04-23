@@ -48,9 +48,9 @@ namespace JsonApi.ObjectModel
             foreach (var resourceObject in resources)
             {
                 var key = new Tuple<string, string>(resourceObject.Type, resourceObject.Id);
-                if (seenKeys.Add(key))
+                if (!seenKeys.Add(key))
                 {
-                    throw new JsonApiSpecException(string.Format("Resource object {0}:{1} included more than once", key.Item1, key.Item2));
+                    throw new JsonApiSpecException("Resource object {0}:{1} included more than once", key.Item1, key.Item2);
                 }
             }
         }

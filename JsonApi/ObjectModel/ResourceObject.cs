@@ -46,8 +46,8 @@ namespace JsonApi.ObjectModel
                 {
                     if (memberInfo.Name.Equals(disalowedPropertyName, StringComparison.CurrentCultureIgnoreCase))
                     {
-                        throw new JsonApiSpecException(string.Format("Resource object class {0} cannot have a '{1}' property or attribute", 
-                            memberInfo.ReflectedType.Name, disalowedPropertyName));
+                        throw new JsonApiSpecException("Resource object class {0} cannot have a '{1}' property or attribute", 
+                            memberInfo.ReflectedType.Name, disalowedPropertyName);
                     }
                 }
             }
@@ -103,9 +103,6 @@ namespace JsonApi.ObjectModel
             serializer.ContractResolver = existingResolver;
         }
 
-        /// <summary>
-        /// Verifies that the json attributes of complex attributes don't violate reserved key rules.
-        /// </summary>
         public class ComplexAttributeFieldNameEnforcingContractResolver : IContractResolver
         {
             private readonly IContractResolver _innerContractResolver;
@@ -118,21 +115,36 @@ namespace JsonApi.ObjectModel
             public JsonContract ResolveContract(Type type)
             {
                 JsonContract contract = _innerContractResolver.ResolveContract(type);
-                if (contract is JsonObjectContract && type != typeof(ResourceObject))
+                if (contract is JsonObjectContract)
                 {
                     var objectContract = contract as JsonObjectContract;
-                    foreach (var property in objectContract.Properties)
+                    if (type == typeof(ResourceObject))
                     {
-                        foreach (var disalowedPropertyName in new[] {"id", "type", "links", "meta"})
+                        // Verify that a ResourceObject has the required fields
+                        foreach (var requiredPropertyName in new[] { "id", "type" })
                         {
-                            if (property.PropertyName.Equals(disalowedPropertyName, StringComparison.CurrentCultureIgnoreCase))
+                            JsonProperty reqProp = objectContract.Properties.FirstOrDefault(p => p.PropertyName.Equals(requiredPropertyName, StringComparison.InvariantCultureIgnoreCase));
+                            if (reqProp == null)
                             {
-                                throw new JsonApiSpecException(string.Format("Complex attribute of type {0} cannot have a '{1}' json property", objectContract.UnderlyingType.Name, disalowedPropertyName));
+                                throw new JsonApiSpecException("Resource object missing required '{0}' json property", requiredPropertyName);
                             }
                         }
                     }
+                    else
+                    {
+                        // Verify that the json attributes of complex attributes don't violate reserved key rules.
+                        foreach (var property in objectContract.Properties)
+                        {
+                            foreach (var disalowedPropertyName in new[] { "id", "type", "links", "meta" })
+                            {
+                                if (property.PropertyName.Equals(disalowedPropertyName, StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    throw new JsonApiSpecException("Complex attribute of type {0} cannot have a '{1}' json property", objectContract.UnderlyingType.Name, disalowedPropertyName);
+                                }
+                            }
+                        }
+                    }  
                 }
-
                 return contract;
             }
         }
