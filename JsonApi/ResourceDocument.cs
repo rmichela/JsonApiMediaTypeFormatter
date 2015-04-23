@@ -22,10 +22,15 @@ namespace JsonApi
                 string firstType = data.First().Type;
                 if (data.Any(d => d.Type != firstType))
                 {
-                    throw new JsonApiException("All top-level resources in a document must be of the same type");
+                    throw new JsonApiSpecException("All top-level resources in a document must be of the same type");
                 }
             }
             _innerExpando.Data = data;
+        }
+
+        public ResourceDocument(IEnumerable<Error> errors)
+        {
+            _innerExpando.Errors = errors;
         }
 
         public void WriteJson(JsonWriter writer, JsonSerializer serializer)

@@ -15,6 +15,7 @@ namespace JsonApi
         public JsonApiMediaTypeFormatter()
         {
             SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/vnd.api+json"));
+//            SerializerSettings.ContractResolver = new JsonApiContractResolver();
         }
 
         public override bool CanReadType(Type type)
@@ -33,23 +34,55 @@ namespace JsonApi
 
         public override void WriteToStream(Type type, object value, Stream writeStream, Encoding effectiveEncoding)
         {
-            IJsonWriter rootResource;
-            if (value is IEnumerable<object>)
+            try
             {
-                rootResource = new ResourceDocument((value as IEnumerable<object>).Select(o => new ResourceObject(o)));
+                // Buffer the output in case there is an error
+                var nominalStream = new MemoryStream();
+
+                IJsonWriter resourceDocument;
+                if (value is IEnumerable<object>)
+                {
+                    resourceDocument = new ResourceDocument((value as IEnumerable<object>).Select(o => new ResourceObject(o)));
+                }
+                else
+                {
+                    resourceDocument = new ResourceDocument(new ResourceObject(value));
+                }
+
+                JsonWriter writer = CreateJsonWriter(type, nominalStream, effectiveEncoding);
+                JsonSerializer serializer = CreateJsonSerializer();
+                writer.Formatting = Formatting.Indented;
+
+                serializer.Serialize(writer, resourceDocument);
+                writer.Flush();
+                nominalStream.Position = 0;
+                nominalStream.CopyTo(writeStream);
+                writeStream.Flush();
             }
-            else
+            catch (JsonApiSpecException ex)
             {
-                rootResource = new ResourceDocument(new ResourceObject(value));
+                var errorStream = new MemoryStream();
+                IJsonWriter errorDocument = new ResourceDocument(new []
+                {
+                    new Error
+                    {
+                        Code = "JsonApiSpecViolation",
+                        Title = "JsonApi Specification Violation",
+                        Href = "http://jsonapi.org/format",
+                        Status = "500",
+                        Detail = ex.Message
+                    }, 
+                });
+                JsonWriter writer = CreateJsonWriter(type, errorStream, effectiveEncoding);
+                JsonSerializer serializer = CreateJsonSerializer();
+                writer.Formatting = Formatting.Indented;
+
+                serializer.Serialize(writer, errorDocument);
+                writer.Flush();
+                errorStream.Position = 0;
+                errorStream.CopyTo(writeStream);
+                writeStream.Flush();
             }
-
-            JsonWriter writer = CreateJsonWriter(type, writeStream, effectiveEncoding);
-            JsonSerializer serializer = CreateJsonSerializer();
-            writer.Formatting = Formatting.Indented;
-
-            serializer.Serialize(writer, rootResource);
-
-            writer.Flush();
         }
     }
 }

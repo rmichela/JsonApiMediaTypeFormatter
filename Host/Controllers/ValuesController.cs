@@ -74,5 +74,6 @@ namespace Host.Controllers
     {
         public int V1 { get; set; }
         public int V2 { get; set; }
+        public int Links = 666;
     }
 }

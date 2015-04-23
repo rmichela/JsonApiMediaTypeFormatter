@@ -53,8 +53,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DynamicExtensions.cs" />
+    <Compile Include="Error.cs" />
     <Compile Include="IJsonWriter.cs" />
-    <Compile Include="JsonApiException.cs" />
+    <Compile Include="JsonApiContractResolver.cs" />
+    <Compile Include="JsonApiSpecException.cs" />
     <Compile Include="JsonApiMediaTypeFormatter.cs" />
     <Compile Include="JsonWriterJsonConverter.cs" />
     <Compile Include="LinkObject.cs" />
