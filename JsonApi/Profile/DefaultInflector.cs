@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace JsonApi.Profile
 {
-    public class SystemDataInflector : IInflector
+    public class DefaultInflector : IInflector
     {
         public string Pluralize(string word)
         {

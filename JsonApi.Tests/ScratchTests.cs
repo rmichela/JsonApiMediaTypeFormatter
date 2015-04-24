@@ -22,6 +22,8 @@ namespace JsonApi.Tests
 
             d.Item1 = 42;
             Console.WriteLine(d.Item1);
+
+            IEnumerable<string> y = new[] { "bananas" };
         }
 
         private dynamic InitializeExpandoFromObjectProperties(object o)

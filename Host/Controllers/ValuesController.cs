@@ -41,7 +41,20 @@ namespace Host.Controllers
                         {
                             ThingGuid = new Guid("B47666DB-EBED-4522-80D8-5F8140DDDF38"),
                             Value = "Pairs"
+                        },
+                    Rel2 = new Thing[]
+                    {
+                        new Thing
+                        {
+                            ThingGuid = new Guid("C1500A37-82CE-4DF0-86AF-018AE441CA4C"),
+                            Value = "Apples"
+                        },
+                        new Thing
+                        {
+                            ThingGuid = new Guid("62A4C9F3-7EB9-45B2-AA4C-DDAAA210C200"),
+                            Value = "Cherries"
                         }
+                    }
                 };
         }
 
@@ -70,13 +83,12 @@ namespace Host.Controllers
         public string Value { get; set; }
         public SubThing Sub { get; set; }
         public Thing Rel1 { get; set; }
-//        public int Links = 666;
+        public Thing[] Rel2 { get; set; }
     }
 
     public class SubThing
     {
         public int V1 { get; set; }
         public int V2 { get; set; }
-//        public int Links = 666;
     }
 }

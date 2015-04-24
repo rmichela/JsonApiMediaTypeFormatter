@@ -62,11 +62,11 @@ namespace JsonApi.Serialization
             if (value is IEnumerable<object>)
             {
                 var resourceObjectList = (value as IEnumerable<object>).Select(o => new ResourceObject(o, _profile)).ToList();
-                resourceDocument = new ResourceDocument(resourceObjectList);
+                resourceDocument = new ResourceDocument(resourceObjectList, _profile);
             }
             else
             {
-                resourceDocument = new ResourceDocument(new ResourceObject(value, _profile));
+                resourceDocument = new ResourceDocument(new ResourceObject(value, _profile), _profile);
             }
 
             JsonWriter writer = CreateJsonWriter(type, nominalStream, effectiveEncoding);
