@@ -42,7 +42,7 @@ namespace Host.Controllers
                             ThingGuid = new Guid("B47666DB-EBED-4522-80D8-5F8140DDDF38"),
                             Value = "Pairs"
                         },
-                    Rel2 = new Thing[]
+                    Rel2 = new List<Thing>
                     {
                         new Thing
                         {
@@ -82,8 +82,10 @@ namespace Host.Controllers
         public Guid ThingGuid { get; set; }
         public string Value { get; set; }
         public SubThing Sub { get; set; }
+        [ResourceRelationship(Sideload = false)]
         public Thing Rel1 { get; set; }
-        public Thing[] Rel2 { get; set; }
+        [ResourceRelationship(Sideload = true)]
+        public List<Thing> Rel2 { get; set; }
     }
 
     public class SubThing

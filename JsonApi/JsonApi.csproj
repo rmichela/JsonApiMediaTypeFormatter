@@ -57,6 +57,7 @@
     <Compile Include="ObjectModel\Error.cs" />
     <Compile Include="ObjectModel\LinkObject.cs" />
     <Compile Include="ObjectModel\LinkType.cs" />
+    <Compile Include="ObjectModel\ResourceRelationshipAttribute.cs" />
     <Compile Include="ObjectModel\ResourceDocument.cs" />
     <Compile Include="ObjectModel\ResourceIdAttribute.cs" />
     <Compile Include="ObjectModel\ResourceIdentifier.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="Serialization\JsonApiContractResolver.cs" />
     <Compile Include="Serialization\JsonApiMediaTypeFormatter.cs" />
     <Compile Include="Serialization\JsonWriterJsonConverter.cs" />
+    <Compile Include="TypeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

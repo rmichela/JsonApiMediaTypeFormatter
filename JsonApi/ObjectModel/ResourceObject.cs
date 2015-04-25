@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
@@ -124,14 +125,6 @@ namespace JsonApi.ObjectModel
             return resourceAttribute.Type ?? inflector.Pluralize(typeName);
         }
 
-        public void WriteJson(JsonWriter writer, JsonSerializer serializer)
-        {
-            IContractResolver existingResolver = serializer.ContractResolver;
-            serializer.ContractResolver = new ComplexAttributeFieldNameEnforcingContractResolver(existingResolver);
-            serializer.Serialize(writer, _innerExpando);
-            serializer.ContractResolver = existingResolver;
-        }
-
         /// <summary>
         /// Convert child objects marked with the [Resource] attribute into ResourceObject instances
         /// </summary>
@@ -139,19 +132,51 @@ namespace JsonApi.ObjectModel
         {
             foreach (var propertyInfo in forObject.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
-                if (propertyInfo.PropertyType.IsDefined(typeof(ResourceObjectAttribute)))
+                var resRel = propertyInfo.GetCustomAttribute<ResourceRelationshipAttribute>();
+                if (resRel != null)
                 {
-                    expandoDict[propertyInfo.Name] = new ResourceObject(propertyInfo.GetValue(forObject), withProfile);
+                    Type enumerableType = propertyInfo.PropertyType.GetGenericIEnumerables().FirstOrDefault();
+                    var propValue = propertyInfo.GetValue(forObject);
+                    if (enumerableType != null)
+                    {
+                        if (propValue != null)
+                        {
+                            // It's a to-many relationship
+                            var resources = (((IEnumerable)propValue))
+                                .Cast<object>()
+                                .Select(o => new ResourceObject(o, withProfile))
+                                .ToList();
+                            expandoDict[propertyInfo.Name] = LinkObject.LinkToMany(resources, resRel.Sideload);
+                        }
+                        else
+                        {
+                            expandoDict[propertyInfo.Name] = LinkObject.Empty(LinkType.ToMany);
+                        }
+                    }
+                    else
+                    {
+                        // It's a to-one relationship
+                        if (propValue != null)
+                        {
+                            var resourceObject = new ResourceObject(propValue, withProfile);
+                            expandoDict[propertyInfo.Name] = LinkObject.LinkToOne(resourceObject, resRel.Sideload);
+                        }
+                        else
+                        {
+                            expandoDict[propertyInfo.Name] = LinkObject.Empty(LinkType.ToOne);
+                        }
+                    }
                 }
-                xxx // Add IEnumerable support to Resourcify()
             }
-            foreach (var fieldInfo in forObject.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public))
-            {
-                if (fieldInfo.FieldType.IsDefined(typeof(ResourceObjectAttribute)))
-                {
-                    expandoDict[fieldInfo.Name] = new ResourceObject(fieldInfo.GetValue(forObject), withProfile);
-                }
-            }
+//            foreach (var fieldInfo in forObject.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public))
+//            {
+//                var resRel = fieldInfo.GetCustomAttribute<ResourceRelationshipAttribute>();
+//                if (resRel != null)
+//                {
+//                    var resourceObject = new ResourceObject(fieldInfo.GetValue(forObject), withProfile);
+//                    expandoDict[fieldInfo.Name] = resRel.Sideload ? (object)resourceObject : (object)resourceObject.ResourceIdentifier;
+//                }
+//            }
         }
 
         public IEnumerable<ResourceObject> ExtractAndRewireResourceLinks()
@@ -169,76 +194,41 @@ namespace JsonApi.ObjectModel
             // and add or expand an existing link relationship.
             foreach (KeyValuePair<string, object> kvp in expandoDict.ToList())
             {
-                if (kvp.Value is ResourceObject)
+                if (kvp.Value == null)
                 {
-                    var ro = kvp.Value as ResourceObject;
-                    if (ro != null)
-                    {
-                        accumulatedResources.Add(ro);
-                        foreach (var subRo in ro.ExtractAndRewireResourceLinks())
-                        {
-                            accumulatedResources.Add(subRo);
-                        }
-                    }
-                    AddOrExpandLink(kvp.Key, ro.ResourceIdentifier, LinkType.ToOne);
-                    expandoDict.Remove(kvp);
+                    continue;
                 }
-                if (kvp.Value is IEnumerable<ResourceObject>)
+
+                var linkObject = kvp.Value as LinkObject;
+                if (linkObject != null)
                 {
-                    var ros = kvp.Value as IEnumerable<ResourceObject>;
-                    foreach (var ro in ros)
-                    {
-                        if (ro != null)
-                        {
-                            accumulatedResources.Add(ro);
-                            foreach (var subRo in ro.ExtractAndRewireResourceLinks())
-                            {
-                                accumulatedResources.Add(subRo);
-                            }
-                        }
-                        AddOrExpandLink(kvp.Key, ro.ResourceIdentifier, LinkType.ToMany);
-                    }
-                    expandoDict.Remove(kvp);
+                    linkObject.Resources.ForEach(r => accumulatedResources.AddIgnoringDuplicates(r.ExtractAndRewireResourceLinks()));
+                    accumulatedResources.AddIgnoringDuplicates(linkObject.Resources);
+                    expandoDict.Remove(kvp.Key);
+                    AddToLinks(kvp.Key, linkObject);
                 }
             }
 
             return accumulatedResources;
         }
 
-        private void AddOrExpandLink(string relationship, ResourceIdentifier identifier, LinkType linkType)
+        private void AddToLinks(string linkName, LinkObject link)
         {
-            // Initialize Links section if not already
             var expandoDict = (IDictionary<string, object>)_innerExpando;
             if (!expandoDict.ContainsKey("Links"))
             {
-                expandoDict.Add("Links", new Dictionary<string, object>());
+                expandoDict.Add("Links", new ExpandoObject());
             }
+            var links = (IDictionary<string, object>)expandoDict["Links"];
+            links.Add(linkName, link);
+        }
 
-            // Initialize link if not already
-            var linksDict = (IDictionary<string, object>)expandoDict["Links"];
-            if (!linksDict.ContainsKey(relationship))
-            {
-                switch (linkType)
-                {
-                    case LinkType.ToOne:
-                        linksDict.Add(relationship, identifier);
-                        break;
-                    case LinkType.ToMany:
-                        linksDict.Add(relationship, new List<ResourceIdentifier> {identifier});
-                        break;
-                }
-            }
-            else
-            {
-                switch (linkType)
-                {
-                    case LinkType.ToOne:
-                        throw new JsonApiSpecException("Cannot assign multiple values to a ToOne relationship");
-                    case LinkType.ToMany:
-                        ((List<ResourceIdentifier>)linksDict[relationship]).Add(identifier);
-                        break;
-                }
-            }
+        public void WriteJson(JsonWriter writer, JsonSerializer serializer)
+        {
+            IContractResolver existingResolver = serializer.ContractResolver;
+            serializer.ContractResolver = new ComplexAttributeFieldNameEnforcingContractResolver(existingResolver);
+            serializer.Serialize(writer, _innerExpando);
+            serializer.ContractResolver = existingResolver;
         }
 
         public class ComplexAttributeFieldNameEnforcingContractResolver : IContractResolver
@@ -256,6 +246,13 @@ namespace JsonApi.ObjectModel
                 if (contract is JsonObjectContract)
                 {
                     var objectContract = contract as JsonObjectContract;
+
+                    // Ignore LinkObjects
+                    if (type == typeof(LinkObject))
+                    {
+                        return contract;
+                    }
+
                     if (type == typeof(ResourceObject) || type == typeof(ResourceIdentifier))
                     {
                         // Verify that a ResourceObject has the required fields

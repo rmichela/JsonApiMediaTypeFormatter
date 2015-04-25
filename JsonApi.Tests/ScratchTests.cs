@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
@@ -13,32 +14,56 @@ namespace JsonApi.Tests
     public class ScratchTests
     {
         [Test]
-        public void ExpandosShouldDoSomething()
+        public void Foo()
         {
-            var x = new Tuple<string, int>("A", 10);
-            dynamic d = InitializeExpandoFromObjectProperties(x);
-            Console.WriteLine(d.Item1);
-            Console.WriteLine(d.Item2);
+            var array = new int[] { 1, 2, 3 };
+            var list = new List<int> { 1, 2, 3 };
+            var set = new HashSet<int>{ 1, 2, 3 };
+            var sequence = YieldInt.Sequence();
 
-            d.Item1 = 42;
-            Console.WriteLine(d.Item1);
-
-            IEnumerable<string> y = new[] { "bananas" };
-        }
-
-        private dynamic InitializeExpandoFromObjectProperties(object o)
-        {
-            Type t = o.GetType();
-            PropertyInfo[] objectProperties = t.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-            dynamic expando = new ExpandoObject();
-            IDictionary<string, object> expandoDict = expando;
-
-            foreach (PropertyInfo objectProperty in objectProperties)
+            var enumerableArray = new object[] { array, list, set, sequence };
+            foreach (IEnumerable enumerable in enumerableArray)
             {
-                expandoDict[objectProperty.Name] = objectProperty.GetValue(o);
+                foreach (object i in enumerable)
+                {
+                    Console.Write(i);
+                }
+                Console.WriteLine();
             }
 
-            return expando;
+            foreach (object enumerable in enumerableArray)
+            {
+                var t = enumerable.GetType();
+                if (typeof(IEnumerable).IsAssignableFrom(t))
+                {
+                    Console.WriteLine(GetGenericIEnumerables(enumerable).First());
+                }
+            }
+        }
+
+        [Test]
+        public void Foo2()
+        {
+            Console.WriteLine(GetGenericIEnumerables(42).Count());
+        }
+
+        public IEnumerable<Type> GetGenericIEnumerables(object o)
+        {
+            return o.GetType()
+                    .GetInterfaces()
+                    .Where(t => t.IsGenericType
+                        && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                    .Select(t => t.GetGenericArguments()[0]);
+        }
+
+        private static class YieldInt
+        {
+            public static IEnumerable Sequence()
+            {
+                yield return 1;
+                yield return 2;
+                yield return 3;
+            }
         }
     }
 }
