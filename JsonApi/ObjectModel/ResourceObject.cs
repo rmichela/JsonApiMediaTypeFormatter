@@ -283,5 +283,44 @@ namespace JsonApi.ObjectModel
                 return contract;
             }
         }
+
+        #region Equality
+        protected bool Equals(ResourceObject other)
+        {
+            return Equals(ResourceIdentifier, other.ResourceIdentifier);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+            return Equals((ResourceObject)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (ResourceIdentifier != null ? ResourceIdentifier.GetHashCode() : 0);
+        }
+
+        public static bool operator ==(ResourceObject left, ResourceObject right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(ResourceObject left, ResourceObject right)
+        {
+            return !Equals(left, right);
+        }
+        #endregion
     }
 }

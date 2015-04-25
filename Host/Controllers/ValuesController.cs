@@ -32,6 +32,12 @@ namespace Host.Controllers
         // GET api/values/5
         public Thing Get(int id)
         {
+            var sharedThing = new Thing
+            {
+                ThingGuid = new Guid("5718EA37-8FE4-4B0F-8126-0B07BCF3C29B"),
+                Value = "Shared"
+            };
+
             return new Thing
                 {
                     ThingGuid = new Guid("7E73D99B-5328-4872-9538-912396515A7D"),
@@ -47,12 +53,14 @@ namespace Host.Controllers
                         new Thing
                         {
                             ThingGuid = new Guid("C1500A37-82CE-4DF0-86AF-018AE441CA4C"),
-                            Value = "Apples"
+                            Value = "Apples",
+                            Rel1 = sharedThing
                         },
                         new Thing
                         {
                             ThingGuid = new Guid("62A4C9F3-7EB9-45B2-AA4C-DDAAA210C200"),
-                            Value = "Cherries"
+                            Value = "Cherries",
+                            Rel1 = sharedThing
                         }
                     }
                 };
@@ -82,7 +90,7 @@ namespace Host.Controllers
         public Guid ThingGuid { get; set; }
         public string Value { get; set; }
         public SubThing Sub { get; set; }
-        [ResourceRelationship(Sideload = false)]
+        [ResourceRelationship(Sideload = true)]
         public Thing Rel1 { get; set; }
         [ResourceRelationship(Sideload = true)]
         public List<Thing> Rel2 { get; set; }

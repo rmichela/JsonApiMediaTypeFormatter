@@ -11,6 +11,7 @@
         public string Type { get; private set; }
         public string Id { get; private set; }
 
+        #region Equality 
         protected bool Equals(ResourceIdentifier other)
         {
             return string.Equals(Type, other.Type) && string.Equals(Id, other.Id);
@@ -50,5 +51,6 @@
         {
             return !Equals(left, right);
         }
+        #endregion
     }
 }
