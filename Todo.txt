@@ -1,0 +1,2 @@
+Array support for collection serialization
+Field support for link serialization
