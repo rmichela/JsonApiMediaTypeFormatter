@@ -129,7 +129,7 @@ namespace Host.Controllers
         public Thing Rel1 { get; set; }
 
         [ResourceRelationship(Sideload = true)]
-        public List<Thing> Rel2 { get; set; }
+        public IEnumerable<Thing> Rel2 { get; set; }
     }
 
     public class SubThing

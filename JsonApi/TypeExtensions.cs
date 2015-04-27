@@ -8,11 +8,11 @@ namespace JsonApi
     {
         public static IEnumerable<Type> GetGenericIEnumerables(this Type type)
         {
-            return type
-                    .GetInterfaces()
-                    .Where(t => t.IsGenericType
-                        && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                    .Select(t => t.GetGenericArguments()[0]);
+            Type[] interfaces = type.IsInterface ? new[] {type} : type.GetInterfaces();
+            var enumerableInterfaces = interfaces.Where(t => t.IsGenericType
+                                            && t.GetGenericTypeDefinition() == typeof (IEnumerable<>));
+            var genaricArguments = enumerableInterfaces.Select(t => t.GetGenericArguments()[0]);
+            return genaricArguments;
         }
 
         public static void AddIgnoringDuplicates<T>(this HashSet<T> hashSet, IEnumerable<T> enumerable)
