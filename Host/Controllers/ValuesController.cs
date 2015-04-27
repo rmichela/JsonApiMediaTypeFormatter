@@ -30,7 +30,7 @@ namespace Host.Controllers
                     ThingGuid = new Guid("B47666DB-EBED-4522-80D8-5F8140DDDF38"),
                     Value = "Pairs"
                 },
-                Rel2 = new List<Thing>
+                Rel2 = new []
                     {
                         new Thing
                         {
@@ -59,7 +59,7 @@ namespace Host.Controllers
                         {
                             ThingGuid = new Guid("9BFC9927-047D-45D0-99F1-BBBD1C76F439"),
                             Value = "Oranges",
-                            Rel2 = new List<Thing>{sharedThing}
+                            Rel2 = new []{sharedThing}
                         }
                 };
         }
@@ -83,7 +83,7 @@ namespace Host.Controllers
                             ThingGuid = new Guid("B47666DB-EBED-4522-80D8-5F8140DDDF38"),
                             Value = "Pairs"
                         },
-                    Rel2 = new List<Thing>
+                    Rel2 = new []
                     {
                         new Thing
                         {
@@ -129,7 +129,7 @@ namespace Host.Controllers
         public Thing Rel1 { get; set; }
 
         [ResourceRelationship(Sideload = true)]
-        public IEnumerable<Thing> Rel2 { get; set; }
+        public Thing[] Rel2 { get; set; }
     }
 
     public class SubThing
