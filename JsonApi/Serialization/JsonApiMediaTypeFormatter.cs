@@ -27,6 +27,11 @@ namespace JsonApi.Serialization
 //            SerializerSettings.ContractResolver = new JsonApiContractResolver();
         }
 
+        public IJsonApiProfile Profile
+        {
+            get { return _profile; }
+        }
+
         public override bool CanReadType(Type type)
         {
             return false;
@@ -38,7 +43,7 @@ namespace JsonApi.Serialization
             {
                 return false;
             }
-            return base.CanWriteType(type);
+            return type.IsClass;
         }
 
         public override void WriteToStream(Type type, object value, Stream writeStream, Encoding effectiveEncoding)
