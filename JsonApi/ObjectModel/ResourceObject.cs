@@ -27,7 +27,7 @@ namespace JsonApi.ObjectModel
             {
                 ValidateResourceObjectAttribute(forObject);
                 ValidateResourceFieldNames(forObject);
-                _innerExpando = DynamicExtensions.InitializeExpandoFromPublicObjectProperties(forObject);
+                _innerExpando = TypeExtensions.InitializeExpandoFromPublicObjectProperties(forObject);
                 _innerExpando.Id = GetResourceId(forObject);
                 _innerExpando.Type = GetResourceType(forObject, profile.Inflector);
 
@@ -70,7 +70,7 @@ namespace JsonApi.ObjectModel
 
         public static void ValidateResourceFieldNames(object forObject)
         {
-            foreach (var memberInfo in forObject.GetType().GetMembers(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var memberInfo in forObject.GetType().GetMembers(TypeExtensions.PublicInstance))
             {
                 foreach (var disalowedPropertyName in new[] { "Type", "Links", "Meta", "Self" })
                 {
@@ -88,7 +88,9 @@ namespace JsonApi.ObjectModel
             object idValue = null;
 
             var type = forObject.GetType();
-            var idPropertiesByAttribute = type.GetProperties().Where(p => p.IsDefined(typeof(ResourceIdAttribute), true)).ToList();
+            var idPropertiesByAttribute = type.GetPropertiesAndFields(TypeExtensions.PublicInstance)
+                .Where(p => p.IsDefined(typeof(ResourceIdAttribute), true))
+                .ToList();
             if (idPropertiesByAttribute.Count > 1)
             {
                 throw new JsonApiSpecException("Resource objects may only have one [ResourceId] attribute");
@@ -99,7 +101,7 @@ namespace JsonApi.ObjectModel
             }
             if (idPropertiesByAttribute.Count == 0)
             {
-                PropertyInfo idProperty = forObject.GetType().GetProperty("Id", BindingFlags.Public | BindingFlags.Instance);
+                PropertyFieldInfo idProperty = forObject.GetType().GetPropertyOrField("Id", TypeExtensions.PublicInstance);
                 if (idProperty != null)
                 {
                     idValue = idProperty.GetValue(forObject);
@@ -130,12 +132,12 @@ namespace JsonApi.ObjectModel
         /// </summary>
         public static void Resourcify(object forObject, IDictionary<string, object> expandoDict, IJsonApiProfile withProfile)
         {
-            foreach (var propertyInfo in forObject.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var propertyInfo in forObject.GetType().GetPropertiesAndFields(TypeExtensions.PublicInstance))
             {
                 var resRel = propertyInfo.GetCustomAttribute<ResourceRelationshipAttribute>();
                 if (resRel != null)
                 {
-                    Type enumerableType = propertyInfo.PropertyType.GetGenericIEnumerables().FirstOrDefault();
+                    Type enumerableType = propertyInfo.OfType.GetGenericIEnumerables().FirstOrDefault();
                     var propValue = propertyInfo.GetValue(forObject);
                     if (enumerableType != null)
                     {
@@ -168,15 +170,6 @@ namespace JsonApi.ObjectModel
                     }
                 }
             }
-//            foreach (var fieldInfo in forObject.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public))
-//            {
-//                var resRel = fieldInfo.GetCustomAttribute<ResourceRelationshipAttribute>();
-//                if (resRel != null)
-//                {
-//                    var resourceObject = new ResourceObject(fieldInfo.GetValue(forObject), withProfile);
-//                    expandoDict[fieldInfo.Name] = resRel.Sideload ? (object)resourceObject : (object)resourceObject.ResourceIdentifier;
-//                }
-//            }
         }
 
         public IEnumerable<ResourceObject> ExtractAndRewireResourceLinks()

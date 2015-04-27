@@ -52,7 +52,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DynamicExtensions.cs" />
     <Compile Include="JsonApiSpecException.cs" />
     <Compile Include="ObjectModel\Error.cs" />
     <Compile Include="ObjectModel\LinkObject.cs" />
@@ -68,6 +67,7 @@
     <Compile Include="Profile\RecommendedProfile.cs" />
     <Compile Include="Profile\DefaultInflector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertyFieldInfo.cs" />
     <Compile Include="Serialization\IJsonWriter.cs" />
     <Compile Include="Serialization\JsonApiContractResolver.cs" />
     <Compile Include="Serialization\JsonApiMediaTypeFormatter.cs" />

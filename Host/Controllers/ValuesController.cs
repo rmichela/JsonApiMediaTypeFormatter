@@ -125,7 +125,7 @@ namespace Host.Controllers
         public string Value { get; set; }
         public SubThing Sub { get; set; }
 
-        [ResourceRelationship(Sideload = false)]
+        [ResourceRelationship(Sideload = true)]
         public Thing Rel1 { get; set; }
 
         [ResourceRelationship(Sideload = true)]
