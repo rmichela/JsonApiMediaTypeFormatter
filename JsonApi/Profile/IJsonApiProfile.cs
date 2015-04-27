@@ -3,5 +3,6 @@
     public interface IJsonApiProfile
     {
         IInflector Inflector { get; }
+        IPropertyNameResolver PropertyNameResolver { get; }
     }
 }

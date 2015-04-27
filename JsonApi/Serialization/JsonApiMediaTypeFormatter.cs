@@ -24,7 +24,7 @@ namespace JsonApi.Serialization
         {
             _profile = profile;
             SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/vnd.api+json"));
-//            SerializerSettings.ContractResolver = new JsonApiContractResolver();
+            SerializerSettings.ContractResolver = new JsonApiContractResolver(_profile);
         }
 
         public IJsonApiProfile Profile
@@ -43,7 +43,7 @@ namespace JsonApi.Serialization
             {
                 return false;
             }
-            return type.IsClass;
+            return type.IsClass || type.IsInterface;
         }
 
         public override void WriteToStream(Type type, object value, Stream writeStream, Encoding effectiveEncoding)

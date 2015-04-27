@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using JsonApi.Profile;
 using JsonApi.Serialization;
 using JsonApi.Tests.Controllers;
@@ -42,6 +43,13 @@ namespace JsonApi.Tests.Serialization
         {
             var formatter = new JsonApiMediaTypeFormatter();
             Assert.IsTrue(formatter.CanWriteType(typeof(TestResource)));
+        }
+
+        [Test]
+        public void FormatterWillWriteIEnumerable()
+        {
+            var formatter = new JsonApiMediaTypeFormatter();
+            Assert.IsTrue(formatter.CanWriteType(typeof(IEnumerable<TestResource>)));
         }
     }
 }

@@ -62,8 +62,10 @@
     <Compile Include="ObjectModel\ResourceIdentifier.cs" />
     <Compile Include="ObjectModel\ResourceObject.cs" />
     <Compile Include="ObjectModel\ResourceObjectAttribute.cs" />
+    <Compile Include="Profile\DasherizingPropertyNameResolver.cs" />
     <Compile Include="Profile\IInflector.cs" />
     <Compile Include="Profile\IJsonApiProfile.cs" />
+    <Compile Include="Profile\IPropertyNameResolver.cs" />
     <Compile Include="Profile\RecommendedProfile.cs" />
     <Compile Include="Profile\DefaultInflector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
