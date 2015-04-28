@@ -62,6 +62,7 @@
     <Compile Include="ObjectModel\ResourceIdentifier.cs" />
     <Compile Include="ObjectModel\ResourceObject.cs" />
     <Compile Include="ObjectModel\ResourceObjectAttribute.cs" />
+    <Compile Include="Profile\CamelCasePropertyNameResolver.cs" />
     <Compile Include="Profile\DasherizingPropertyNameResolver.cs" />
     <Compile Include="Profile\IInflector.cs" />
     <Compile Include="Profile\IJsonApiProfile.cs" />

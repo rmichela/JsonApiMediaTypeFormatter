@@ -70,7 +70,7 @@ namespace JsonApi.ObjectModel
 
         public static void ValidateResourceFieldNames(object forObject)
         {
-            foreach (var memberInfo in forObject.GetType().GetMembers(TypeExtensions.PublicInstance))
+            foreach (var memberInfo in forObject.GetType().GetMembers(TypeExtensions.PUBLIC_INSTANCE))
             {
                 foreach (var disalowedPropertyName in new[] { "Type", "Links", "Meta", "Self" })
                 {
@@ -88,7 +88,7 @@ namespace JsonApi.ObjectModel
             object idValue = null;
 
             var type = forObject.GetType();
-            var idPropertiesByAttribute = type.GetPropertiesAndFields(TypeExtensions.PublicInstance)
+            var idPropertiesByAttribute = type.GetPropertiesAndFields(TypeExtensions.PUBLIC_INSTANCE)
                 .Where(p => p.IsDefined(typeof(ResourceIdAttribute), true))
                 .ToList();
             if (idPropertiesByAttribute.Count > 1)
@@ -101,7 +101,7 @@ namespace JsonApi.ObjectModel
             }
             if (idPropertiesByAttribute.Count == 0)
             {
-                PropertyFieldInfo idProperty = forObject.GetType().GetPropertyOrField("Id", TypeExtensions.PublicInstance);
+                PropertyFieldInfo idProperty = forObject.GetType().GetPropertyOrField("Id", TypeExtensions.PUBLIC_INSTANCE);
                 if (idProperty != null)
                 {
                     idValue = idProperty.GetValue(forObject);
@@ -132,7 +132,7 @@ namespace JsonApi.ObjectModel
         /// </summary>
         public static void Resourcify(object forObject, IDictionary<string, object> expandoDict, IJsonApiProfile withProfile)
         {
-            foreach (var propertyInfo in forObject.GetType().GetPropertiesAndFields(TypeExtensions.PublicInstance))
+            foreach (var propertyInfo in forObject.GetType().GetPropertiesAndFields(TypeExtensions.PUBLIC_INSTANCE))
             {
                 var resRel = propertyInfo.GetCustomAttribute<ResourceRelationshipAttribute>();
                 if (resRel != null)

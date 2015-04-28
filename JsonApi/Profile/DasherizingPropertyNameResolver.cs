@@ -22,19 +22,19 @@ namespace JsonApi.Profile
             char[] chars = propertyName.ToCharArray();
             var sb = new StringBuilder(propertyName.Length);
 
-            sb.Append(chars[0]); // First character
-            if (chars.Length > 1)
+            for (int i = 0; i < chars.Length-1; i++)
             {
-                for (int i = 1; i < chars.Length - 1; i++)
+                sb.Append(chars[i]);
+                if (char.IsLower(chars[i]) && char.IsUpper(chars[i + 1])) // Rising lcase -> ucase edge
                 {
-                    sb.Append(chars[i]);
-                    if (char.IsUpper(chars[i + 1]))
-                    {
-                        sb.Append('-');
-                    }
+                    sb.Append('-');
                 }
-                sb.Append(chars[chars.Length - 1]); // Last character
+                else if (i + 2 < chars.Length && char.IsUpper(chars[i]) && char.IsUpper(chars[i + 1]) && char.IsLower(chars[i + 2]))
+                {
+                    sb.Append('-');
+                }
             }
+            sb.Append(chars[chars.Length - 1]); // Last character
 
             return sb.ToString().ToLower();
         }

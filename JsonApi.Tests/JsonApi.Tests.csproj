@@ -58,8 +58,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\TestController.cs" />
+    <Compile Include="ObjectModel\ResourceIdentifierTests.cs" />
+    <Compile Include="ObjectModel\ResourceObjectTests.cs" />
+    <Compile Include="Profile\CamelCasePropertyNameResolverTests.cs" />
+    <Compile Include="Profile\DasherizingPropertyNameResolverTests.cs" />
+    <Compile Include="Profile\DefaultInflectorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\JsonApiMediaTypeFormatterTests.cs" />
+    <Compile Include="TestExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -8,7 +8,7 @@ namespace JsonApi
 {
     internal static class TypeExtensions
     {
-        public const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
+        public const BindingFlags PUBLIC_INSTANCE = BindingFlags.Public | BindingFlags.Instance;
 
         public static IEnumerable<Type> GetGenericIEnumerables(this Type type)
         {
@@ -48,7 +48,7 @@ namespace JsonApi
         public static dynamic InitializeExpandoFromPublicObjectProperties(object o)
         {
             Type t = o.GetType();
-            PropertyFieldInfo[] objectProperties = t.GetPropertiesAndFields(PublicInstance);
+            PropertyFieldInfo[] objectProperties = t.GetPropertiesAndFields(PUBLIC_INSTANCE);
             dynamic expando = new ExpandoObject();
             IDictionary<string, object> expandoDict = expando;
 
