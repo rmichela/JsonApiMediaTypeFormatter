@@ -14,11 +14,26 @@ namespace JsonApi.Tests
     }
 
     [ResourceObject]
+    public class ResourceWithConflictingRelationship
+    {
+        public int Id { get; set; }
+        [ResourceRelationship(Sideload = false)]
+        public Resource Conflict { get; set; }
+        public int CoNfLiCt { get; set; }
+    }
+
+    [ResourceObject]
     public class Resource
     {
         public int Id { get; set; }
         public string AttributeS { get; set; }
         public int AttributeI { get; set; }
+    }
+
+    [ResourceObject(Type = "Bananas")]
+    public class ResourceWithAlternateType
+    {
+        public int Id { get; set; }
     }
 
     public class ResourceWithoutAttribute
@@ -86,5 +101,34 @@ namespace JsonApi.Tests
     public class ComplexAttributeWithIllegalAttribute
     {
         public ComplexAttributeWithId WithId { get; set; }
+    }
+
+    [ResourceObject]
+    public class ResourceWithSelf
+    {
+        public int Id { get; set; }
+        [ResourceRelationship]
+        public int Self { get; set; }
+    }
+
+    [ResourceObject]
+    public class ResourceWithType
+    {
+        public int Id { get; set; }
+        public int Type { get; set; }
+    }
+
+    [ResourceObject]
+    public class ResourceWithLinks
+    {
+        public int Id { get; set; }
+        public int Links { get; set; }
+    }
+
+    [ResourceObject]
+    public class ResourceWithMeta
+    {
+        public int Id { get; set; }
+        public int Meta { get; set; }
     }
 }

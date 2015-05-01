@@ -4,10 +4,6 @@ namespace JsonApi
 {
     public class JsonApiSpecException : Exception
     {
-        public JsonApiSpecException()
-        {
-        }
-
         public JsonApiSpecException(string message) : base(message)
         {
         }

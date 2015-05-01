@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using JsonApi.Profile;
@@ -9,7 +8,7 @@ using Newtonsoft.Json;
 namespace JsonApi.ObjectModel
 {
     [JsonConverter(typeof(JsonWriterJsonConverter))]
-    internal class ResourceDocument : IJsonWriter
+    public class ResourceDocument : IJsonWriter
     {
         private readonly IJsonApiProfile _profile;
         private readonly dynamic _innerExpando = new ExpandoObject();
@@ -51,7 +50,7 @@ namespace JsonApi.ObjectModel
             }
         }
 
-        public static void ValidateResourceObjectCollectionSameType(IEnumerable<ResourceObject> resources)
+        private static void ValidateResourceObjectCollectionSameType(List<ResourceObject> resources)
         {
             if (resources.Any())
             {
@@ -63,7 +62,7 @@ namespace JsonApi.ObjectModel
             }
         }
 
-        public static void ValidateResourceObjectCollectionUniqueness(IEnumerable<ResourceObject> resources)
+        private static void ValidateResourceObjectCollectionUniqueness(IEnumerable<ResourceObject> resources)
         {
             var seenKeys = new HashSet<ResourceIdentifier>();
             foreach (var resourceObject in resources)

@@ -1,6 +1,6 @@
 ﻿namespace JsonApi.ObjectModel
 {
-    internal enum LinkType
+    public enum LinkType
     {
         ToOne,
         ToMany

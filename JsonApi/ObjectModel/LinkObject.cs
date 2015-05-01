@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 namespace JsonApi.ObjectModel
 {
     [JsonConverter(typeof(JsonWriterJsonConverter))]
-    internal class LinkObject : IJsonWriter
+    public class LinkObject : IJsonWriter
     {
         private readonly dynamic _innerExpando = new ExpandoObject();
 

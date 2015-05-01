@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JsonApi
 {
+    /// <summary>
+    /// Allows operations to treat PropertyInfo and FieldInfo as the same type
+    /// </summary>
     internal class PropertyFieldInfo
     {
         private readonly PropertyInfo _propertyInfo;

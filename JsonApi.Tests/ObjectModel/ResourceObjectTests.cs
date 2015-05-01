@@ -29,6 +29,15 @@ namespace JsonApi.Tests.ObjectModel
         }
 
         [Test]
+        public void ShouldSerializeAlternateType()
+        {
+            var r = new ResourceWithAlternateType { Id = 1 };
+            var ro = new ResourceObject(r, _p);
+            JToken json = ro.ToJson();
+            Assert.AreEqual("Bananas", (string)json["type"]);
+        }
+
+        [Test]
         [ExpectedException(typeof(JsonApiSpecException))]
         public void ResourceMustHaveId()
         {
@@ -152,6 +161,51 @@ namespace JsonApi.Tests.ObjectModel
             };
             var ro = new ResourceObject(r, _p);
             JToken json = ro.ToJson();
+        }
+
+        [Test]
+        [ExpectedException(typeof(JsonApiSpecException))]
+        public void ShouldErrorWhenLinkAndPropertyShareName()
+        {
+            var r = new ResourceWithConflictingRelationship
+                {
+                    Conflict = new Resource {Id = 1},
+                    CoNfLiCt = 1
+                };
+            var ro = new ResourceObject(r, _p);
+            JToken json = ro.ToJson();
+        }
+
+        [Test]
+        [ExpectedException(typeof (JsonApiSpecException))]
+        public void ShouldErrorWhenResourceHasTypeAttribute()
+        {
+            var r = new ResourceWithType {Id = 1, Type = 1};
+            var ro = new ResourceObject(r, _p);
+        }
+
+        [Test]
+        [ExpectedException(typeof(JsonApiSpecException))]
+        public void ShouldErrorWhenResourceHasLinksAttribute()
+        {
+            var r = new ResourceWithLinks { Id = 1, Links = 1 };
+            var ro = new ResourceObject(r, _p);
+        }
+
+        [Test]
+        [ExpectedException(typeof(JsonApiSpecException))]
+        public void ShouldErrorWhenResourceHasMetaAttribute()
+        {
+            var r = new ResourceWithMeta { Id = 1, Meta = 1 };
+            var ro = new ResourceObject(r, _p);
+        }
+
+        [Test]
+        [ExpectedException(typeof(JsonApiSpecException))]
+        public void ShouldErrorWhenResourceHasSelfAttribute()
+        {
+            var r = new ResourceWithSelf { Id = 1, Self = 1 };
+            var ro = new ResourceObject(r, _p);
         }
     }
 }

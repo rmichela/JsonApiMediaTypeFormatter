@@ -12,7 +12,7 @@ using Newtonsoft.Json.Serialization;
 namespace JsonApi.ObjectModel
 {
     [JsonConverter(typeof(JsonWriterJsonConverter))]
-    internal class ResourceObject : IJsonWriter
+    public class ResourceObject : IJsonWriter
     {
         private readonly object _forObject;
         private readonly dynamic _innerExpando;
@@ -31,6 +31,7 @@ namespace JsonApi.ObjectModel
                 _innerExpando.Id = GetResourceId(forObject);
                 _innerExpando.Type = GetResourceType(forObject, profile.Inflector);
 
+                ValidatePropertyNameUniqueness(_innerExpando);
                 Resourcify(forObject, _innerExpando, profile);
             }
         }
@@ -60,7 +61,7 @@ namespace JsonApi.ObjectModel
             }
         }
 
-        public static void ValidateResourceObjectAttribute(object forObject)
+        private static void ValidateResourceObjectAttribute(object forObject)
         {
             if (!forObject.GetType().IsDefined(typeof(ResourceObjectAttribute)))
             {
@@ -68,7 +69,7 @@ namespace JsonApi.ObjectModel
             }
         }
 
-        public static void ValidateResourceFieldNames(object forObject)
+        private static void ValidateResourceFieldNames(object forObject)
         {
             foreach (var memberInfo in forObject.GetType().GetMembers(TypeExtensions.PUBLIC_INSTANCE))
             {
@@ -83,7 +84,7 @@ namespace JsonApi.ObjectModel
             }
         }
 
-        public static string GetResourceId(object forObject)
+        private static string GetResourceId(object forObject)
         {
             object idValue = null;
 
@@ -120,7 +121,7 @@ namespace JsonApi.ObjectModel
             return idValue.ToString();
         }
 
-        public static string GetResourceType(object forObject, IInflector inflector)
+        private static string GetResourceType(object forObject, IInflector inflector)
         {
             var resourceAttribute = forObject.GetType().GetCustomAttribute<ResourceObjectAttribute>(false);
             string typeName = forObject.GetType().Name;
@@ -130,7 +131,7 @@ namespace JsonApi.ObjectModel
         /// <summary>
         /// Convert child objects marked with the [Resource] attribute into ResourceObject instances
         /// </summary>
-        public static void Resourcify(object forObject, IDictionary<string, object> expandoDict, IJsonApiProfile withProfile)
+        private static void Resourcify(object forObject, IDictionary<string, object> expandoDict, IJsonApiProfile withProfile)
         {
             foreach (var propertyInfo in forObject.GetType().GetPropertiesAndFields(TypeExtensions.PUBLIC_INSTANCE))
             {
@@ -168,6 +169,18 @@ namespace JsonApi.ObjectModel
                             expandoDict[propertyInfo.Name] = LinkObject.Empty(LinkType.ToOne);
                         }
                     }
+                }
+            }
+        }
+
+        private static void ValidatePropertyNameUniqueness(IDictionary<string, object> expandoDict)
+        {
+            var seenKeys = new HashSet<string>();
+            foreach (string key in expandoDict.Keys)
+            {
+                if (!seenKeys.Add(key.ToLowerInvariant()))
+                {
+                    throw new JsonApiSpecException(string.Format("Resource objects cannot have attributes that differ only in case: {0}", key));
                 }
             }
         }
@@ -224,7 +237,7 @@ namespace JsonApi.ObjectModel
             serializer.ContractResolver = existingResolver;
         }
 
-        public class ComplexAttributeFieldNameEnforcingContractResolver : IContractResolver
+        private class ComplexAttributeFieldNameEnforcingContractResolver : IContractResolver
         {
             private readonly IContractResolver _innerContractResolver;
 
@@ -293,7 +306,7 @@ namespace JsonApi.ObjectModel
             {
                 return true;
             }
-            if (obj.GetType() != this.GetType())
+            if (obj.GetType() != GetType())
             {
                 return false;
             }
