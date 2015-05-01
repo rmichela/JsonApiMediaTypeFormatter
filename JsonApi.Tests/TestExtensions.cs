@@ -8,7 +8,7 @@ namespace JsonApi.Tests
 {
     internal static class TestExtensions
     {
-        public static JObject ToJson(this IJsonWriter toBeWritten)
+        public static JToken ToJson(this IJsonWriter toBeWritten)
         {
             using (var stringWriter = new StringWriter())
             using (var jsonWriter = new JsonTextWriter(stringWriter))
@@ -20,7 +20,7 @@ namespace JsonApi.Tests
                 toBeWritten.WriteJson(jsonWriter, serializer);
                 stringWriter.Flush();
 
-                return JObject.Parse(stringWriter.GetStringBuilder().ToString());
+                return JToken.Parse(stringWriter.GetStringBuilder().ToString());
             }
         }
     }

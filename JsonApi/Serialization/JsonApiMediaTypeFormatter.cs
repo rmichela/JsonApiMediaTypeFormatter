@@ -88,7 +88,7 @@ namespace JsonApi.Serialization
         private void WriteSpecError(Type type, object value, Stream writeStream, Encoding effectiveEncoding, string detail)
         {
             var errorStream = new MemoryStream();
-            IJsonWriter errorDocument = new ResourceDocument(new[]
+            IJsonWriter errorDocument = new ResourceDocument(new List<Error> 
                 {
                     new Error
                     {
@@ -98,7 +98,7 @@ namespace JsonApi.Serialization
                         Status = "500",
                         Detail = detail
                     }, 
-                });
+                }, _profile);
             JsonWriter writer = CreateJsonWriter(type, errorStream, effectiveEncoding);
             JsonSerializer serializer = CreateJsonSerializer();
             writer.Formatting = Formatting.Indented;

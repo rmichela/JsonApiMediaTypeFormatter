@@ -32,8 +32,9 @@ namespace JsonApi.ObjectModel
             _innerExpando.Data = data;
         }
 
-        public ResourceDocument(IEnumerable<Error> errors)
+        public ResourceDocument(List<Error> errors, IJsonApiProfile profile)
         {
+            _profile = profile;
             _innerExpando.Errors = errors;
         }
 
