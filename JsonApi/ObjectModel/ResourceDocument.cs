@@ -39,13 +39,13 @@ namespace JsonApi.ObjectModel
 
         private void ExtractIncludedLinks(ResourceObject resource)
         {
-            var expandoDict = (IDictionary<string, object>)_innerExpando;
-            if (!expandoDict.ContainsKey("Included"))
-            {
-                expandoDict.Add("Included", new HashSet<ResourceObject>());
-            }
+            var expandoDict = (IDictionary<string, object>)_innerExpando;           
             foreach (var ro in resource.ExtractAndRewireResourceLinks())
             {
+                if (!expandoDict.ContainsKey("Included"))
+                {
+                    expandoDict.Add("Included", new HashSet<ResourceObject>());
+                }
                 ((HashSet<ResourceObject>)expandoDict["Included"]).Add(ro);
             }
         }

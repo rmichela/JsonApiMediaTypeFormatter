@@ -55,10 +55,25 @@ namespace JsonApi.ObjectModel
                 var expandoDict = (IDictionary<string, object>)_innerExpando;
                 if (expandoDict.ContainsKey("Links"))
                 {
-                    return expandoDict["Links"] as IEnumerable<LinkObject>;
+                    var links = (IDictionary<string, object>)expandoDict["Links"];
+                    return links.Values.Cast<LinkObject>();
                 }
                 return new List<LinkObject>();
             }
+        }
+
+        public LinkObject Link(string name)
+        {
+            var expandoDict = (IDictionary<string, object>)_innerExpando;
+            if (expandoDict.ContainsKey("Links"))
+            {
+                var links = (IDictionary<string, object>)expandoDict["Links"];
+                if (links.ContainsKey(name))
+                {
+                    return (LinkObject)links[name];
+                }
+            }
+            return null;
         }
 
         private static void ValidateResourceObjectAttribute(object forObject)

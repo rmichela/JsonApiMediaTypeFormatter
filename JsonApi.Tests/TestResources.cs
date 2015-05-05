@@ -14,6 +14,16 @@ namespace JsonApi.Tests
     }
 
     [ResourceObject]
+    public class ResourceWithRelationshipNoSideload
+    {
+        public int Id { get; set; }
+        [ResourceRelationship(Sideload = false)]
+        public Resource ToOne { get; set; }
+        [ResourceRelationship(Sideload = false)]
+        public List<Resource> ToMany { get; set; }
+    }
+
+    [ResourceObject]
     public class ResourceWithConflictingRelationship
     {
         public int Id { get; set; }
