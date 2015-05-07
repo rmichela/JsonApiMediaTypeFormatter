@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace JsonApi.Tests.ObjectModel
 {
-    [TestFixture ]
+    [TestFixture]
     public class ResourceDocumentTests
     {
         private readonly IJsonApiProfile _p = new RecommendedProfile();

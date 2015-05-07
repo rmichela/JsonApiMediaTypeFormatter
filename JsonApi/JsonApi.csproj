@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="JsonApiSpecException.cs" />
     <Compile Include="ObjectModel\Error.cs" />
+    <Compile Include="ObjectModel\IMeta.cs" />
     <Compile Include="ObjectModel\LinkObject.cs" />
     <Compile Include="ObjectModel\LinkType.cs" />
     <Compile Include="ObjectModel\ResourceRelationshipAttribute.cs" />

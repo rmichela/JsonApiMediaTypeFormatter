@@ -8,9 +8,10 @@ using Newtonsoft.Json;
 namespace JsonApi.ObjectModel
 {
     [JsonConverter(typeof(JsonWriterJsonConverter))]
-    public class LinkObject : IJsonWriter
+    public class LinkObject : IJsonWriter, IMeta
     {
-        private readonly dynamic _innerExpando = new ExpandoObject();
+        private readonly dynamic _innerExpando;
+        private readonly IDictionary<string, object> _innerExpandoDict; 
 
         public List<ResourceObject> Resources { get; private set; }
         public LinkType LinkType { get; private set; }
@@ -20,6 +21,9 @@ namespace JsonApi.ObjectModel
 
         private LinkObject(List<ResourceObject> resources, LinkType linkType, bool sideload)
         {
+            _innerExpando = new ExpandoObject();
+            _innerExpandoDict = _innerExpando;
+
             LinkType = linkType;
             Sideload = sideload;
             Resources = sideload ? resources : new List<ResourceObject>();
@@ -37,20 +41,28 @@ namespace JsonApi.ObjectModel
 
         public Uri Self
         {
-            get { return _innerExpando.Self; }
+            get { return ((ExpandoObject)_innerExpando).GetValueIfPresent<Uri>("Self"); }
             set { _innerExpando.Self = value; }
         }
 
         public Uri Related
         {
-            get { return _innerExpando.Related; }
+            get { return ((ExpandoObject)_innerExpando).GetValueIfPresent<Uri>("Related"); }
             set { _innerExpando.Related = value; }
         }
 
-        public object Meta
+        public dynamic Meta
         {
-            get { return _innerExpando.Meta; }
-            set { _innerExpando.Meta = value; }
+            get
+            {
+                object ret;
+                if (!_innerExpandoDict.TryGetValue("Meta", out ret))
+                {
+                    ret = new ExpandoObject();
+                    _innerExpandoDict.Add("Meta", ret);
+                }
+                return ret;
+            }
         }
 
         public static LinkObject Empty(LinkType linkType)

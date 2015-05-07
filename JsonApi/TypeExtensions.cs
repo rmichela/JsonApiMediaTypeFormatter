@@ -59,5 +59,16 @@ namespace JsonApi
 
             return expando;
         }
+
+        public static T GetValueIfPresent<T>(this ExpandoObject expando, string key)
+        {
+            var expandoDict = (IDictionary<string, object>)expando;
+            object ret;
+            if (expandoDict.TryGetValue(key, out ret))
+            {
+                return (T)ret;
+            }
+            return default(T);
+        }
     }
 }

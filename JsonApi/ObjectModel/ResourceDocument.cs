@@ -8,14 +8,17 @@ using Newtonsoft.Json;
 namespace JsonApi.ObjectModel
 {
     [JsonConverter(typeof(JsonWriterJsonConverter))]
-    public class ResourceDocument : IJsonWriter
+    public class ResourceDocument : IJsonWriter, IMeta
     {
         private readonly IJsonApiProfile _profile;
-        private readonly dynamic _innerExpando = new ExpandoObject();
+        private readonly dynamic _innerExpando;
+        private readonly IDictionary<string, object> _innerExpandoDict;
 
         public ResourceDocument(ResourceObject data, IJsonApiProfile profile)
         {
             _profile = profile;
+            _innerExpando = new ExpandoObject();
+            _innerExpandoDict = _innerExpando;
             _innerExpando.Data = data;
             ExtractIncludedLinks(data);
         }
@@ -35,6 +38,20 @@ namespace JsonApi.ObjectModel
         {
             _profile = profile;
             _innerExpando.Errors = errors;
+        }
+
+        public dynamic Meta
+        {
+            get
+            {
+                object ret;
+                if (!_innerExpandoDict.TryGetValue("Meta", out ret))
+                {
+                    ret = new ExpandoObject();
+                    _innerExpandoDict.Add("Meta", ret);
+                }
+                return ret;
+            }
         }
 
         private void ExtractIncludedLinks(ResourceObject resource)

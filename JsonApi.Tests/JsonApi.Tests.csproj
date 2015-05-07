@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\TestController.cs" />
+    <Compile Include="ObjectModel\MetadataTests.cs" />
     <Compile Include="ObjectModel\ResourceDocumentTests.cs" />
     <Compile Include="ObjectModel\ResourceIdentifierTests.cs" />
     <Compile Include="ObjectModel\ResourceObjectTests.cs" />

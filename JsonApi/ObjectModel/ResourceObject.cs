@@ -12,10 +12,11 @@ using Newtonsoft.Json.Serialization;
 namespace JsonApi.ObjectModel
 {
     [JsonConverter(typeof(JsonWriterJsonConverter))]
-    public class ResourceObject : IJsonWriter
+    public class ResourceObject : IJsonWriter, IMeta
     {
         private readonly object _forObject;
         private readonly dynamic _innerExpando;
+        private readonly IDictionary<string, object> _innerExpandoDict;
         private readonly IJsonApiProfile _profile;
 
         public ResourceObject(object forObject, IJsonApiProfile profile)
@@ -28,6 +29,7 @@ namespace JsonApi.ObjectModel
                 ValidateResourceObjectAttribute(forObject);
                 ValidateResourceFieldNames(forObject);
                 _innerExpando = TypeExtensions.InitializeExpandoFromPublicObjectProperties(forObject);
+                _innerExpandoDict = _innerExpando;
                 _innerExpando.Id = GetResourceId(forObject);
                 _innerExpando.Type = GetResourceType(forObject, profile.Inflector);
 
@@ -52,10 +54,9 @@ namespace JsonApi.ObjectModel
         {
             get
             {
-                var expandoDict = (IDictionary<string, object>)_innerExpando;
-                if (expandoDict.ContainsKey("Links"))
+                if (_innerExpandoDict.ContainsKey("Links"))
                 {
-                    var links = (IDictionary<string, object>)expandoDict["Links"];
+                    var links = (IDictionary<string, object>)_innerExpandoDict["Links"];
                     return links.Values.Cast<LinkObject>();
                 }
                 return new List<LinkObject>();
@@ -64,16 +65,29 @@ namespace JsonApi.ObjectModel
 
         public LinkObject Link(string name)
         {
-            var expandoDict = (IDictionary<string, object>)_innerExpando;
-            if (expandoDict.ContainsKey("Links"))
+            if (_innerExpandoDict.ContainsKey("Links"))
             {
-                var links = (IDictionary<string, object>)expandoDict["Links"];
+                var links = (IDictionary<string, object>)_innerExpandoDict["Links"];
                 if (links.ContainsKey(name))
                 {
                     return (LinkObject)links[name];
                 }
             }
             return null;
+        }
+
+        public dynamic Meta
+        {
+            get
+            {
+                object ret;
+                if (!_innerExpandoDict.TryGetValue("Meta", out ret))
+                {
+                    ret = new ExpandoObject();
+                    _innerExpandoDict.Add("Meta", ret);
+                }
+                return ret;
+            } 
         }
 
         private static void ValidateResourceObjectAttribute(object forObject)
@@ -207,13 +221,12 @@ namespace JsonApi.ObjectModel
                 return new HashSet<ResourceObject>();
             }
 
-            var expandoDict = (IDictionary<string, object>)_innerExpando;
             var accumulatedResources = new HashSet<ResourceObject>();
 
             // Iterate over the expando properties looking for ResourceObjects.
             // If found, remove the object and add its link to the return value
             // and add or expand an existing link relationship.
-            foreach (KeyValuePair<string, object> kvp in expandoDict.ToList())
+            foreach (KeyValuePair<string, object> kvp in _innerExpandoDict.ToList())
             {
                 if (kvp.Value == null)
                 {
@@ -225,7 +238,7 @@ namespace JsonApi.ObjectModel
                 {
                     linkObject.Resources.ForEach(r => accumulatedResources.AddIgnoringDuplicates(r.ExtractAndRewireResourceLinks()));
                     accumulatedResources.AddIgnoringDuplicates(linkObject.Resources);
-                    expandoDict.Remove(kvp.Key);
+                    _innerExpandoDict.Remove(kvp.Key);
                     AddToLinks(kvp.Key, linkObject);
                 }
             }
@@ -235,12 +248,11 @@ namespace JsonApi.ObjectModel
 
         private void AddToLinks(string linkName, LinkObject link)
         {
-            var expandoDict = (IDictionary<string, object>)_innerExpando;
-            if (!expandoDict.ContainsKey("Links"))
+            if (!_innerExpandoDict.ContainsKey("Links"))
             {
-                expandoDict.Add("Links", new ExpandoObject());
+                _innerExpandoDict.Add("Links", new ExpandoObject());
             }
-            var links = (IDictionary<string, object>)expandoDict["Links"];
+            var links = (IDictionary<string, object>)_innerExpandoDict["Links"];
             links.Add(linkName, link);
         }
 
@@ -252,6 +264,7 @@ namespace JsonApi.ObjectModel
             serializer.ContractResolver = existingResolver;
         }
 
+        // Enforce property name rules on serialized json for complex attributes
         private class ComplexAttributeFieldNameEnforcingContractResolver : IContractResolver
         {
             private readonly IContractResolver _innerContractResolver;
