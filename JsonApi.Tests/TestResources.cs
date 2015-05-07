@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JsonApi.ObjectModel;
 
 namespace JsonApi.Tests
@@ -30,6 +31,14 @@ namespace JsonApi.Tests
         [ResourceRelationship(Sideload = false)]
         public Resource Conflict { get; set; }
         public int CoNfLiCt { get; set; }
+    }
+
+    [ResourceObject]
+    public class ResourceWithUriRelationship
+    {
+        public int Id { get; set; }
+        [ResourceRelationship]
+        public Uri Author { get; set; }
     }
 
     [ResourceObject]

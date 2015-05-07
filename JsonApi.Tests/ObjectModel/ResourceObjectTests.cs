@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using JsonApi.ObjectModel;
 using JsonApi.Profile;
@@ -250,7 +251,7 @@ namespace JsonApi.Tests.ObjectModel
             };
             var ro = new ResourceObject(r, _p);
             ro.ExtractAndRewireResourceLinks();
-            var link = ro.Links.First(l => l.LinkType == LinkType.ToOne);
+            var link = ro.Link("ToOne");
 
             Assert.AreEqual("2", link.Resources.First().ResourceIdentifier.Id);
             Assert.AreEqual("Resources", link.Resources.First().ResourceIdentifier.Type);
@@ -275,6 +276,23 @@ namespace JsonApi.Tests.ObjectModel
             Assert.AreEqual("2", link.Resources.First().ResourceIdentifier.Id);
             Assert.AreEqual("Resources", link.Resources.First().ResourceIdentifier.Type);
             Assert.AreEqual(LinkType.ToMany, link.LinkType);
+        }
+
+        [Test]
+        public void LinkedObjectShouldHandleUriLinkage()
+        {
+            var r = new ResourceWithUriRelationship
+            {
+                Id = 1,
+                Author = new Uri("http://www.google.com")
+            };
+            var ro = new ResourceObject(r, _p);
+            ro.ExtractAndRewireResourceLinks();
+            var link = ro.Link("Author");
+
+            Assert.AreEqual(LinkType.ToUrl, link.LinkType);
+            var json = link.ToJson();
+            Assert.AreEqual("http://www.google.com", (string)json);
         }
 
         [Test]

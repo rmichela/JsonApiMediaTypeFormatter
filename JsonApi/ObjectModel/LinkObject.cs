@@ -39,6 +39,15 @@ namespace JsonApi.ObjectModel
             }
         }
 
+        private LinkObject(Uri uri)
+        {
+            _innerExpando = uri;
+            _innerExpandoDict = new ExpandoObject();
+            LinkType = LinkType.ToUrl;
+            Resources = new List<ResourceObject>();
+            Linkage = new List<ResourceIdentifier>();
+        }
+
         public Uri Self
         {
             get { return ((ExpandoObject)_innerExpando).GetValueIfPresent<Uri>("Self"); }
@@ -78,6 +87,11 @@ namespace JsonApi.ObjectModel
         public static LinkObject LinkToOne(ResourceObject resource, bool sideload)
         {
             return new LinkObject(new List<ResourceObject>{resource}, LinkType.ToOne, sideload );
+        }
+
+        public static LinkObject LinkToUri(Uri uri)
+        {
+            return new LinkObject(uri);
         }
 
         public void WriteJson(JsonWriter writer, JsonSerializer serializer)

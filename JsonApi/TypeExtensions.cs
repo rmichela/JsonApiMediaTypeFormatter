@@ -62,11 +62,14 @@ namespace JsonApi
 
         public static T GetValueIfPresent<T>(this ExpandoObject expando, string key)
         {
-            var expandoDict = (IDictionary<string, object>)expando;
-            object ret;
-            if (expandoDict.TryGetValue(key, out ret))
+            if (expando != null)
             {
-                return (T)ret;
+                var expandoDict = (IDictionary<string, object>)expando;
+                object ret;
+                if (expandoDict.TryGetValue(key, out ret))
+                {
+                    return (T)ret;
+                }
             }
             return default(T);
         }

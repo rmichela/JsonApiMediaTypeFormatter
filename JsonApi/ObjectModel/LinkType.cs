@@ -3,6 +3,7 @@
     public enum LinkType
     {
         ToOne,
-        ToMany
+        ToMany,
+        ToUrl
     }
 }

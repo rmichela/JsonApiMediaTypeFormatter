@@ -167,8 +167,14 @@ namespace JsonApi.ObjectModel
                 var resRel = propertyInfo.GetCustomAttribute<ResourceRelationshipAttribute>();
                 if (resRel != null)
                 {
-                    Type enumerableType = propertyInfo.OfType.GetGenericIEnumerables().FirstOrDefault();
                     var propValue = propertyInfo.GetValue(forObject);
+                    if (propertyInfo.OfType == typeof(Uri) && propValue != null)
+                    {
+                        expandoDict[propertyInfo.Name] = LinkObject.LinkToUri((Uri)propValue);
+                        continue;
+                    }
+
+                    Type enumerableType = propertyInfo.OfType.GetGenericIEnumerables().FirstOrDefault();
                     if (enumerableType != null)
                     {
                         if (propValue != null)
