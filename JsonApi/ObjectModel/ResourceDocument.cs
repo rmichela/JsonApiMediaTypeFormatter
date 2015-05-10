@@ -26,6 +26,8 @@ namespace JsonApi.ObjectModel
         public ResourceDocument(List<ResourceObject> data, IJsonApiProfile profile)
         {
             _profile = profile;
+            _innerExpando = new ExpandoObject();
+            _innerExpandoDict = _innerExpando;
 
             ValidateResourceObjectCollectionSameType(data);
             ValidateResourceObjectCollectionUniqueness(data);
@@ -37,6 +39,8 @@ namespace JsonApi.ObjectModel
         public ResourceDocument(List<Error> errors, IJsonApiProfile profile)
         {
             _profile = profile;
+            _innerExpando = new ExpandoObject();
+            _innerExpandoDict = _innerExpando;
             _innerExpando.Errors = errors;
         }
 
@@ -55,15 +59,14 @@ namespace JsonApi.ObjectModel
         }
 
         private void ExtractIncludedLinks(ResourceObject resource)
-        {
-            var expandoDict = (IDictionary<string, object>)_innerExpando;           
+        {         
             foreach (var ro in resource.ExtractAndRewireResourceLinks())
             {
-                if (!expandoDict.ContainsKey("Included"))
+                if (!_innerExpandoDict.ContainsKey("Included"))
                 {
-                    expandoDict.Add("Included", new HashSet<ResourceObject>());
+                    _innerExpandoDict.Add("Included", new HashSet<ResourceObject>());
                 }
-                ((HashSet<ResourceObject>)expandoDict["Included"]).Add(ro);
+                ((HashSet<ResourceObject>)_innerExpandoDict["Included"]).Add(ro);
             }
         }
 

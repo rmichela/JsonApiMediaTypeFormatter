@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Http;
-using JsonApi;
 using JsonApi.ObjectModel;
+using JsonApi.ServiceModel;
 
 namespace Host.Controllers
 {
-    public class ValuesController : ApiController
+    public class ValuesController : JsonApiResourceController<Thing>
     {
         // GET api/values
-        public IEnumerable<Thing> Get()
+        public override JsonApiResponse<Thing> Get()
         {
             var sharedThing2 = new Thing
             {
@@ -65,7 +61,7 @@ namespace Host.Controllers
         }
 
         // GET api/values/5
-        public Thing Get(int id)
+        public override JsonApiResponse<Thing> Get(string id)
         {
             var sharedThing = new Thing
             {

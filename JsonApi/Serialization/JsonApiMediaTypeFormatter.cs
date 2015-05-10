@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using JsonApi.ObjectModel;
 using JsonApi.Profile;
+using JsonApi.ServiceModel;
 using Newtonsoft.Json;
 
 namespace JsonApi.Serialization
@@ -64,7 +65,12 @@ namespace JsonApi.Serialization
             var nominalStream = new MemoryStream();
 
             IJsonWriter resourceDocument;
-            if (value is IEnumerable<object>)
+
+            if (value is JsonApiResponse)
+            {
+                resourceDocument = ((JsonApiResponse) value).ToDocument(_profile);
+            }
+            else if (value is IEnumerable<object>)
             {
                 var resourceObjectList = (value as IEnumerable<object>).Select(o => new ResourceObject(o, _profile)).ToList();
                 resourceDocument = new ResourceDocument(resourceObjectList, _profile);
