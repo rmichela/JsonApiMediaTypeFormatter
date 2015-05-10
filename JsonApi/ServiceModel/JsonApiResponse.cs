@@ -8,69 +8,42 @@ namespace JsonApi.ServiceModel
 {
     public abstract class JsonApiResponse
     {
-        public bool IsCollection { get; protected set; }
-        protected IEnumerable<object> Obj;
+        protected object Obj;
+        public IDictionary<string, object> Metadata;
 
-        public ResourceDocument ToDocument(IJsonApiProfile profile)
+        public ResourceObject ToResourceObject(IJsonApiProfile profile)
         {
-            if (IsCollection)
+            var resource = new ResourceObject(Obj, profile);
+            if (Metadata != null && Metadata.Any())
             {
-                var resourceObjectList = Obj.Select(o => new ResourceObject(o, profile)).ToList();
-                return new ResourceDocument(resourceObjectList, profile);
+                var metaExpando = (IDictionary<string, object>) resource.Meta;
+                foreach (var kvp in Metadata)
+                {
+                    metaExpando.Add(kvp.Key, kvp.Value);
+                }
             }
-            else
-            {
-                return new ResourceDocument(new ResourceObject(Obj.FirstOrDefault(), profile), profile);
-            }
+            return resource;
+        }
+
+        public string Id
+        {
+            get { return ResourceObject.GetResourceId(Obj); }
         }
     }
 
     public class JsonApiResponse<T> : JsonApiResponse where T:class
     {
-        public static readonly JsonApiResponse<T> EmptyCollection = new JsonApiResponse<T>(new List<T>());
-        public static readonly JsonApiResponse<T> NotFound = new JsonApiResponse<T>((T)null); 
+        public static readonly JsonApiResponse<T> NotFound = new JsonApiResponse<T>(null);
+        public static readonly IEnumerable<JsonApiResponse<T>> EmptyCollection = new List<JsonApiResponse<T>>(); 
 
         public JsonApiResponse(T obj)
         {
             ValidateResourceObjectAttribute();
 
-            if (obj == null)
-            {
-                Obj = new List<T>();
-            }
-            else
-            {
-                Obj = new List<T> { obj };                
-            }
-            IsCollection = false;
+            Obj = obj;
         }
-
-        public JsonApiResponse(IEnumerable<T> obj)
-        {
-            ValidateResourceObjectAttribute();
-
-            if (obj == null)
-            {
-                Obj = new List<T>();
-            }
-            else
-            {
-                Obj = obj;                
-            }
-            IsCollection = true;
-        }
-
+        
         public static implicit operator JsonApiResponse<T>(T obj)
-        {
-            return new JsonApiResponse<T>(obj);
-        }
-
-        public static implicit operator JsonApiResponse<T>(List<T> obj)
-        {
-            return new JsonApiResponse<T>(obj);
-        }
-
-        public static implicit operator JsonApiResponse<T>(T[] obj)
         {
             return new JsonApiResponse<T>(obj);
         }

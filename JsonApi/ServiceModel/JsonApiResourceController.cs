@@ -1,4 +1,6 @@
-﻿using System.Web.Http;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Web.Http;
 
 namespace JsonApi.ServiceModel
 {
@@ -9,14 +11,11 @@ namespace JsonApi.ServiceModel
         /// GET a collection of T
         /// </summary>
         /// <returns></returns>
-        public virtual JsonApiResponse<T> Get()
-        {
-            return JsonApiResponse<T>.EmptyCollection;
-        }
+        public abstract IEnumerable<JsonApiResponse<T>> Get();
 
         public virtual JsonApiResponse<T> Get(string id)
         {
-            return JsonApiResponse<T>.NotFound;
+            return Get().FirstOrDefault(r => r.Id == id) ?? JsonApiResponse<T>.NotFound;
         }
     }
 }

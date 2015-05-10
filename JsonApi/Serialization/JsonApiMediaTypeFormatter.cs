@@ -65,16 +65,23 @@ namespace JsonApi.Serialization
             var nominalStream = new MemoryStream();
 
             IJsonWriter resourceDocument;
-
-            if (value is JsonApiResponse)
+            if (value is IEnumerable<JsonApiResponse>)
             {
-                resourceDocument = ((JsonApiResponse) value).ToDocument(_profile);
-            }
-            else if (value is IEnumerable<object>)
-            {
-                var resourceObjectList = (value as IEnumerable<object>).Select(o => new ResourceObject(o, _profile)).ToList();
+                var resourceObjectList = ((IEnumerable<JsonApiResponse>)value).Select(r => r.ToResourceObject(_profile)).ToList();
                 resourceDocument = new ResourceDocument(resourceObjectList, _profile);
             }
+            
+            else if (value is JsonApiResponse)
+            {
+                resourceDocument = new ResourceDocument(((JsonApiResponse)value).ToResourceObject(_profile), _profile);
+            }
+            
+            else if (value is IEnumerable<object>)
+            {
+                var resourceObjectList = ((IEnumerable<object>) value).Select(o => new ResourceObject(o, _profile)).ToList();
+                resourceDocument = new ResourceDocument(resourceObjectList, _profile);
+            }
+
             else
             {
                 resourceDocument = new ResourceDocument(new ResourceObject(value, _profile), _profile);

@@ -113,8 +113,13 @@ namespace JsonApi.ObjectModel
             }
         }
 
-        private static string GetResourceId(object forObject)
+        public static string GetResourceId(object forObject)
         {
+            if (forObject == null)
+            {
+                return String.Empty;
+            }
+
             object idValue = null;
 
             var type = forObject.GetType();
